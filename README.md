@@ -1,6 +1,8 @@
 
 # get_ssh_key.py
 
+> Copyright 2010 Martin Carpenter, mcarpenter@free.fr.
+
 `get_ssh_key.py` is a short python script to return the public
 component of the active SSH key on one or more remote servers.
 

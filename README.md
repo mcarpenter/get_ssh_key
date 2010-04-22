@@ -1,12 +1,12 @@
 
-# get_host_key.py
+# get_ssh_key.py
 
-`get_host_key.py` is a short python script to return the public
+`get_ssh_key.py` is a short python script to return the public
 component of the active SSH key on one or more remote servers.
 
 ## Usage
 
-    get_host_key.py host [...]
+    get_ssh_key.py host [...]
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ by `host: `.
 
 ## Examples
 
-    $ get_host_key.py 127.0.0.1
+    $ get_ssh_key.py 127.0.0.1
     ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAs1HwTgFu0b05tcPHoT23faFRa+135x8fs34sljsdf9234jtCb4KvFb6uGIeyUjXSBAManMQ4p/A9bKqTxLru0lATJshKm4mfL+/odYSmxjBDKcccevoIWAwe8CuR5y0Io/W/oj+HVlY4q7RSqce1gH2zDmpxACNkSsTfxlzi0yM= 127.0.0.1#1024
 
     $ get_ssh_key.py 127.0.0.1 rootshell.be 

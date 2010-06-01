@@ -1,12 +1,18 @@
 #!/usr/bin/ruby
 
-# get_ssh_key.rb
+# = get_ssh_key.rb
 # Copyright 2010 Martin Carpenter, mcarpenter@free.fr.
-# Retrieves the current public SSH key from one or more remote hosts.
+#
+# Retrieves the public SSH key from one or more remote hosts.
+#
+# == Usage
+# get_ssh_key.rb -h | [ -t { rsa | dsa } ] host [...]
 
 require 'rubygems'
 require 'net/ssh'
 require 'base64'
+require 'getoptlong'
+require 'rdoc/usage'
 
 DEFAULT_SSH_PORT = 22
 
@@ -15,10 +21,17 @@ DEFAULT_SSH_PORT = 22
 # the @key attribute.
 class Key
 
-  # Length = ceil( log2(n+1) ), where n is the key modulus.
-  # Uses the identity: logb(n) = logx(n) / logx(b).
+  # Return the length of the key in bits.
   def length
-    ( Math.log(@key.n.to_i + 1) / Math.log(2) ).ceil
+    case @key
+    when OpenSSL::PKey::DSA
+      length_indicator = @key.p
+    when OpenSSL::PKey::RSA
+      length_indicator = @key.n
+    else
+      raise RuntimeError, "Unknown key type `#{@key.class}'"
+    end
+    length_indicator.to_i.to_s(2).length
   end
 
   # Convert key to string representation.
@@ -34,26 +47,52 @@ class Key
 
 end
 
+# Parse the command line options.
+def parse_options
+    opts = GetoptLong.new(
+      [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+      [ '--type', '-t', GetoptLong::REQUIRED_ARGUMENT ]
+    )
+  key_types = [ 'ssh-rsa', 'ssh-dss' ]
+  begin
+    opts.each do |opt, arg|
+      case opt
+      when '--help'
+        RDoc::usage
+      when '--type'
+        case arg
+        when 'rsa'
+          key_types = [ 'ssh-rsa' ]
+        when 'dsa'
+          key_types = [ 'ssh-dss' ]
+        else
+          $stderr.puts "Unknown key type `#{arg}'"
+          RDoc::usage(2, 'Usage')
+        end
+      end
+    end
+  rescue GetoptLong::MissingArgument, GetoptLong::InvalidOption
+  end
+  RDoc::usage(2, 'Usage') if ARGV.empty?
+  [ key_types, ARGV ]
+end
+
 # Returns an ASCII string representing the host key.
-def get_host_key_str(host)
+def get_host_key_str(key_types, host)
   key = Key.new
-  transport = Net::SSH::Transport::Session.new(
+  session = Net::SSH::Transport::Session.new(
     host,
     :port => DEFAULT_SSH_PORT,
-    :paranoid => key)
-  transport.close
+    :paranoid => key,
+    :host_key => key_types
+  )
+  session.close
   "#{key} #{host}##{key.length}"
 end
 
-hosts = ARGV
-
-if hosts.empty?
-  $stderr.puts "Usage: #{$0} host [...]\n"
-  exit 2
-end
-
+key_types, hosts = *parse_options
 hosts.each do |host|
-  key_str = get_host_key_str(host)
+  key_str = get_host_key_str(key_types, host)
   puts ( hosts.length > 1 ? "#{host}: #{key_str}" : key_str )
 end
 

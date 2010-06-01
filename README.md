@@ -5,16 +5,19 @@
 
 `get_ssh_key.py` and `get_ssh_key.rb` perform identical functions
 in their respective languages: they return the public component
-of the active SSH key on one or more remote servers. (I initially
-wrote the Python version then decided I wanted to drop this into
-a Rails app, so I translated it to Ruby).
+of the active SSH key (RSA or DSA) on one or more remote servers.
+(I initially wrote the Python version then decided I wanted to drop
+this into a Rails app, so I translated it to Ruby).
 
 ## Usage
 
 Usage is identical for both scripts:
 
-    get_ssh_key.py host [...]
-    get_ssh_key.rb host [...]
+    get_ssh_key.py [ -t { rsa | dsa } ] host [...]
+    get_ssh_key.rb [ -t { rsa | dsa } ] host [...]
+    
+If the `-t` flag is not specified then first an RSA key is sought,
+then a DSA key. This concurs with most client implementations.
 
 ## Prerequisites
 
@@ -44,8 +47,8 @@ by `host: `.
 
 ## Examples
 
-    $ get_ssh_key.py 127.0.0.1
-    ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAs1HwTgFu0b05tcPHoT23faFRa+135x8fs34sljsdf9234jtCb4KvFb6uGIeyUjXSBAManMQ4p/A9bKqTxLru0lATJshKm4mfL+/odYSmxjBDKcccevoIWAwe8CuR5y0Io/W/oj+HVlY4q7RSqce1gH2zDmpxACNkSsTfxlzi0yM= 127.0.0.1#1024
+    $ get_ssh_key.py -t dsa 127.0.0.1
+    ssh-dss AAAAB3NzaC1kc3MAAACBAIRwDKmnYdaBzjWM/LT1dVtImAOv9o/hrnNPeJBrgdO6p57r2CaR+h22Od6qNJZob9Q/aSRlG8GGmftuxLvtI8LEaxdfnBcvJu7HrhzSsN/+EqhVNstktKfaVVSuUs1UiBUdOY5EFLCq3J2VPBx2PYfWo9CC9qSixa4wowiZNldBaaaafQDNclEAN5I4007gQH/qxmlqK/wLKJSD34fLeURPGCH/8DUEW5uvx/VOemUVgb5VtdKv4I/4/fhaLIpp9KoejerKi1+tczCYaJN6PHylnVWeYeOHjqX8IjeK7hxdQKpkw/JCCSF3mHhB6exqCt8nJY3osLkr412fzouTO2mVYPzwtP4uV7iqQSzXQm17pIqg3wuU0dh+UTJE3QAAAIAb7bEbz/aghjXuoNvHm2ROeXML+oyNLFu+dZMPYs5gaPKhfdv/4bABZyWFlRFpuEhwu4Sxr82d9tK8MIZoVBOWENHKMVCLbFfL/Asfsyge3WLukTAqdSy9wmfdCVJDXHoOwhE97PdDSuvC9UTTktJ0hO+3X0ULv6RVit6mxp0wgQ== 127.0.0.1#1024
 
     $ get_ssh_key.rb 127.0.0.1 rootshell.be 
     127.0.0.1: ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAs1HwTgFu0b05tcPHoT23faFRa+135x8fs34sljsdf9234jtCb4KvFb6uGIeyUjXSBAManMQ4p/A9bKqTxLru0lATJshKm4mfL+/odYSmxjBDKcccevoIWAwe8CuR5y0Io/W/oj+HVlY4q7RSqce1gH2zDmpxACNkSsTfxlzi0yM= 127.0.0.1#1024

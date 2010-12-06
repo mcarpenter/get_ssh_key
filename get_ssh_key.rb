@@ -12,7 +12,6 @@ require 'rubygems'
 require 'net/ssh'
 require 'base64'
 require 'getoptlong'
-require 'rdoc/usage'
 
 DEFAULT_SSH_PORT = 22
 
@@ -47,6 +46,17 @@ class Key
 
 end
 
+# Return the name of this program.
+def program_name
+  File.basename($0)
+end
+
+# Display usage on stderr and exit with (optional) exit code.
+def usage(exit_code=0)
+  $stderr.puts "Usage: #{program_name} -h | [ -t { rsa | dss } ] host [...]"
+  exit(exit_code)
+end
+
 # Parse the command line options.
 def parse_options
     opts = GetoptLong.new(
@@ -58,7 +68,7 @@ def parse_options
     opts.each do |opt, arg|
       case opt
       when '--help'
-        RDoc::usage
+        usage
       when '--type'
         case arg
         when 'rsa'
@@ -67,13 +77,14 @@ def parse_options
           key_types = [ 'ssh-dss' ]
         else
           $stderr.puts "Unknown key type `#{arg}'"
-          RDoc::usage(2, 'Usage')
+          usage(2)
         end
       end
     end
   rescue GetoptLong::MissingArgument, GetoptLong::InvalidOption
+    usage(2)
   end
-  RDoc::usage(2, 'Usage') if ARGV.empty?
+  usage(2) if ARGV.empty?
   [ key_types, ARGV ]
 end
 

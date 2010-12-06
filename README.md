@@ -13,9 +13,12 @@ this into a Rails app, so I translated it to Ruby).
 
 Usage is identical for both scripts:
 
-    get_ssh_key.py [ -t { rsa | dsa } ] host [...]
-    get_ssh_key.rb [ -t { rsa | dsa } ] host [...]
+    get_ssh_key.py [ -p port ] [ -t { rsa | dsa } ] host [...]
+    get_ssh_key.rb [ -p port ] [ -t { rsa | dsa } ] host [...]
     
+If the `-p` flag is not specified then the default SSH port (22)
+is used.
+
 If the `-t` flag is not specified then first an RSA key is sought,
 then a DSA key. This concurs with most client implementations.
 

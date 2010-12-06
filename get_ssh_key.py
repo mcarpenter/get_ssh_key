@@ -18,9 +18,9 @@ def main(argv=None):
     """Main entry point."""
     if argv is None:
         argv = sys.argv
-    ( key_types, hosts ) = parse_options(argv[1:])
+    ( key_types, hosts, port ) = parse_options(argv[1:])
     for host in hosts:
-        key_str = get_host_key_str(key_types, host)
+        key_str = get_host_key_str(key_types, host, port)
         if len(hosts) > 1:
             print "%s: %s" % ( host, key_str )
         else:
@@ -28,13 +28,24 @@ def main(argv=None):
 
 def parse_options(argv):
     """Parse the command line options. Exits on error with return
-    code two, otherwise returns a list of key types and a list of
-    host names."""
+    code two, otherwise returns a list of key types, a list of
+    host names and a port number."""
     parser = OptionParser("Usage: %prog [options] host [...]")
     parser.add_option('-t', '--type',
             help='specify key type TYPE (rsa or dsa)',
             metavar='TYPE')
+    parser.add_option('-p', '--port',
+            help='specify port number PORT',
+            metavar='PORT')
     (options, hosts) = parser.parse_args(argv)
+    if not options.port:
+        port = DEFAULT_SSH_PORT
+    else:
+        if not options.port.isdigit():
+            print >> sys.stderr, 'Invalid port number %s' % options.port
+            parser.print_help()
+            sys.exit(2)
+        port = int( options.port )
     if not options.type:
         key_types = [ 'ssh-rsa', 'ssh-dss' ]
     elif options.type == 'rsa':
@@ -48,13 +59,12 @@ def parse_options(argv):
     if not hosts:
         parser.print_help()
         sys.exit(2)
-    return ( key_types, hosts )
+    return ( key_types, hosts, port )
 
-
-def get_host_key_str(key_types, host):
+def get_host_key_str(key_types, host, port):
     """Returns an ASCII string representing the host key."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((host, DEFAULT_SSH_PORT))
+    sock.connect((host, port))
     transport = paramiko.Transport(sock)
     options = transport.get_security_options()
     options.key_types = key_types
